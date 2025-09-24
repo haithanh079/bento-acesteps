@@ -174,7 +174,7 @@ EOF
 bentoml build
 
 # Test the service
-bentoml serve service:ACEStepAudioService
+bentoml serve service:acestepaudoservice
 ```
 
 ## Step 10: Docker Setup (Optional)
@@ -262,7 +262,7 @@ Type=simple
 User=$USER
 WorkingDirectory=$HOME/ace-step-bentoml
 Environment=PATH=$HOME/ace-step-bentoml/venv/bin
-ExecStart=$HOME/ace-step-bentoml/venv/bin/bentoml serve service:ACEStepAudioService
+ExecStart=$HOME/ace-step-bentoml/venv/bin/bentoml serve service:acestepaudoservice
 Restart=always
 RestartSec=10
 

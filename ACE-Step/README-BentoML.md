@@ -41,7 +41,7 @@ export OUTPUT_DIR="/tmp/ace_step_outputs"
 ### 3. Start the Service
 
 ```bash
-bentoml serve service:ACEStepAudioService
+bentoml serve service:acestepaudoservice
 ```
 
 The service will be available at `http://localhost:3000`
@@ -286,7 +286,7 @@ mypy service.py config.py
 Check service logs for detailed error information:
 
 ```bash
-bentoml serve service:ACEStepAudioService --reload
+bentoml serve service:acestepaudoservice --reload
 ```
 
 ## License

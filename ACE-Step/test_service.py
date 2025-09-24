@@ -86,8 +86,8 @@ async def test_service_initialization():
     """Test service initialization"""
     # This would require mocking the ACEStepPipeline
     # For now, just test that the service class can be imported
-    from service import ACEStepAudioService
-    assert ACEStepAudioService is not None
+    from service import acestepaudoservice
+    assert acestepaudoservice is not None
 
 def test_openai_compatibility():
     """Test OpenAI API compatibility"""

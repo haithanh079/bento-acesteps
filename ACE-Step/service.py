@@ -210,7 +210,7 @@ file_manager = FileManager()
     }
 )
 @bentoml.asgi_app(openai_api_app, path="/v1")
-class ACEStepAudioService:
+class acestepaudoservice:
     """BentoML service for ACE-Step audio generation with OpenAI-compatible API"""
     
     def __init__(self):
@@ -362,7 +362,7 @@ class ACEStepAudioService:
 async def create_audio_generation(
     request: AudioGenerationRequest,
     background_tasks: BackgroundTasks,
-    service: ACEStepAudioService = Depends(bentoml.get_current_service)
+    service: acestepaudoservice = Depends(bentoml.get_current_service)
 ):
     """OpenAI-compatible audio generation endpoint"""
     try:
@@ -406,7 +406,7 @@ async def create_audio_generation(
 @openai_api_app.post("/audio/generations/stream")
 async def create_audio_generation_stream(
     request: AudioGenerationRequest,
-    service: ACEStepAudioService = Depends(bentoml.get_current_service)
+    service: acestepaudoservice = Depends(bentoml.get_current_service)
 ):
     """Streaming audio generation endpoint (placeholder for future implementation)"""
     # This would be for streaming generation progress
@@ -451,7 +451,7 @@ async def get_audio_file(filename: str):
 @openai_api_app.post("/audio/upload")
 async def upload_audio_file(
     file: UploadFile = File(...),
-    service: ACEStepAudioService = Depends(bentoml.get_current_service)
+    service: acestepaudoservice = Depends(bentoml.get_current_service)
 ):
     """Upload audio file for processing (future feature)"""
     # This could be used for audio-to-audio generation or other features

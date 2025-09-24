@@ -13,7 +13,7 @@ envs:
 
 # Service configuration
 services:
-  ACEStepAudioService:
+  acestepaudoservice:
     instance_type: "gpu.l4.1"  # Adjust based on your needs
     scaling:
       min_replicas: 1

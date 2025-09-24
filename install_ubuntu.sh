@@ -422,7 +422,7 @@ User=$actual_user
 Group=$actual_user
 WorkingDirectory=$project_dir
 Environment=PATH=$project_dir/venv/bin
-ExecStart=$project_dir/venv/bin/bentoml serve service:ACEStepAudioService
+ExecStart=$project_dir/venv/bin/bentoml serve service:acestepaudoservice
 Restart=always
 RestartSec=10
 StandardOutput=journal

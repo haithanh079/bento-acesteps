@@ -1,4 +1,4 @@
-service: "service:ACEStepAudioService"
+service: "service:acestepaudoservice"
 labels:
   owner: bentoml-team
   project: ace-step-audio
