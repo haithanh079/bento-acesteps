@@ -69,7 +69,8 @@ def retrieve_timesteps(
 
 from diffusers.utils.torch_utils import randn_tensor
 from diffusers.utils.peft_utils import set_weights_and_activate_adapters
-from transformers import UMT5EncoderModel, AutoTokenizer
+# Defer transformers imports to runtime to avoid build-time issues
+import bentoml
 
 from acestep.language_segmentation import LangSegment, language_filters
 from acestep.music_dcae.music_dcae_pipeline import MusicDCAE
@@ -254,9 +255,11 @@ class ACEStepPipeline:
         self.lang_segment = lang_segment
         self.lyric_tokenizer = VoiceBpeTokenizer()
 
-        text_encoder_model = UMT5EncoderModel.from_pretrained(
-            text_encoder_checkpoint_path, torch_dtype=self.dtype
-        ).eval()
+        with bentoml.importing():
+            from transformers import UMT5EncoderModel
+            text_encoder_model = UMT5EncoderModel.from_pretrained(
+                text_encoder_checkpoint_path, torch_dtype=self.dtype
+            ).eval()
         # text_encoder_model = text_encoder_model.to(self.device).to(self.dtype)
         if self.cpu_offload:
             text_encoder_model = text_encoder_model.to("cpu").eval().to(self.dtype)
@@ -267,9 +270,11 @@ class ACEStepPipeline:
         if self.torch_compile:
             self.text_encoder_model = torch.compile(self.text_encoder_model)
 
-        self.text_tokenizer = AutoTokenizer.from_pretrained(
-            text_encoder_checkpoint_path
-        )
+        with bentoml.importing():
+            from transformers import AutoTokenizer
+            self.text_tokenizer = AutoTokenizer.from_pretrained(
+                text_encoder_checkpoint_path
+            )
         self.loaded = True
 
         # compile
@@ -341,7 +346,9 @@ class ACEStepPipeline:
         )
         self.ace_step_transformer.torchao_quantized = True
 
-        self.text_encoder_model = UMT5EncoderModel.from_pretrained(text_encoder_checkpoint_path)
+        with bentoml.importing():
+            from transformers import UMT5EncoderModel
+            self.text_encoder_model = UMT5EncoderModel.from_pretrained(text_encoder_checkpoint_path)
         self.text_encoder_model.eval().to(self.dtype).to('cpu')
         self.text_encoder_model = torch.compile(self.text_encoder_model)
         self.text_encoder_model.load_state_dict(
@@ -352,9 +359,11 @@ class ACEStepPipeline:
         )
         self.text_encoder_model.torchao_quantized = True
 
-        self.text_tokenizer = AutoTokenizer.from_pretrained(
-            text_encoder_checkpoint_path
-        )
+        with bentoml.importing():
+            from transformers import AutoTokenizer
+            self.text_tokenizer = AutoTokenizer.from_pretrained(
+                text_encoder_checkpoint_path
+            )
 
         lang_segment = LangSegment()
         lang_segment.setfilters(language_filters.default)
