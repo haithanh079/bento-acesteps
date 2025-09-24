@@ -1,0 +1,47 @@
+# Ubuntu System Package Requirements for ACE-Step BentoML Service
+# Install with: sudo apt install -y $(cat ubuntu_requirements.txt | grep -v '^#' | tr '\n' ' ')
+
+# Essential build tools
+build-essential
+curl
+wget
+git
+software-properties-common
+apt-transport-https
+ca-certificates
+gnupg
+lsb-release
+
+# Audio processing libraries
+ffmpeg
+sox
+libsox-fmt-all
+libsndfile1
+libsndfile1-dev
+libasound2-dev
+portaudio19-dev
+libportaudio2
+libportaudiocpp0
+
+# Python development
+python3-dev
+python3-pip
+python3-venv
+python3-setuptools
+python3-wheel
+
+# ML/AI dependencies
+libblas-dev
+liblapack-dev
+libatlas-base-dev
+gfortran
+libhdf5-dev
+pkg-config
+
+# Optional: For development and debugging
+htop
+tree
+vim
+nano
+tmux
+screen
