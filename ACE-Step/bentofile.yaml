@@ -28,11 +28,19 @@ docker:
     - "gcc"
     - "g++"
     - "make"
+    # Additional packages for CLIP models
+    - "git"
+    - "pkg-config"
+    - "libhdf5-dev"
   env:
     CUDA_VISIBLE_DEVICES: "0"
     TOKENIZERS_PARALLELISM: "false"
     OPENAI_API_BASE: "http://localhost:3000"
     OPENAI_API_KEY: "sk-ace-steps"
+    # Additional environment variables for CLIP models
+    HF_HUB_DISABLE_TELEMETRY: "1"
+    TRANSFORMERS_CACHE: "/tmp/transformers_cache"
+    HF_HOME: "/tmp/huggingface"
 labels:
   service: "ace-step-openai"
   version: "1.0.0"

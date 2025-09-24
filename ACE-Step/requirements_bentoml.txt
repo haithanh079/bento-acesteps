@@ -7,6 +7,9 @@ uvicorn>=0.20.0
 # ACE-Steps dependencies
 datasets==3.4.1
 diffusers>=0.33.0
+# Ensure diffusers has all required dependencies
+xformers>=0.0.20
+safetensors>=0.4.0
 librosa==0.11.0
 loguru==0.7.3
 matplotlib==3.10.1
@@ -18,7 +21,7 @@ torch
 torchaudio
 torchvision
 tqdm
-transformers==4.50.0
+# transformers>=4.50.0  # Moved to CLIP section below
 py3langid==0.3.0
 hangul-romanize==0.1.0
 num2words==0.5.14
@@ -37,6 +40,20 @@ aiofiles>=23.0.0
 python-multipart>=0.0.6
 jinja2>=3.1.0
 prometheus-client>=0.17.0
+
+# CLIP and vision dependencies
+pillow>=9.0.0
+huggingface-hub>=0.20.0
+# CLIP model dependencies for transformers
+transformers[torch]>=4.50.0
+# Additional CLIP dependencies
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+# Additional dependencies for CLIP models
+ftfy>=6.1.1
+regex>=2023.6.15
+# Ensure proper tokenizer support
+tokenizers>=0.15.0
 
 # Audio processing
 librosa>=0.10.0
