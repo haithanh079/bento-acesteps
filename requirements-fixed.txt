@@ -1,0 +1,60 @@
+# BentoML and core dependencies with resolved conflicts
+# Install with: pip install -r requirements-fixed.txt
+
+# Core filesystem and storage dependencies (must be installed first)
+fsspec>=2025.7.0
+
+# BentoML with specific version
+bentoml==1.4.25
+
+# Core web framework dependencies
+fastapi>=0.104.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+uvicorn[standard]>=0.24.0
+
+# PyTorch (install separately based on CUDA availability)
+# For CUDA: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# For CPU: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# ML/AI dependencies with compatible versions
+transformers>=4.50.0
+diffusers>=0.33.0
+accelerate>=1.6.0
+datasets>=3.4.1
+
+# Audio processing libraries
+librosa>=0.11.0
+soundfile>=0.13.1
+torchaudio  # Will be installed with PyTorch
+
+# Utility libraries
+loguru>=0.7.3
+tqdm
+numpy
+matplotlib>=3.10.1
+
+# File handling and API dependencies
+python-multipart>=0.0.6
+aiofiles>=23.0.0
+huggingface-hub>=0.19.0
+
+# Additional dependencies for specific features
+pypinyin==0.53.0
+py3langid==0.3.0
+hangul-romanize==0.1.0
+num2words==0.5.14
+spacy>=3.8.0
+cutlet
+fugashi[unidic-lite]
+click
+peft
+tensorboard
+tensorboardX
+
+# Development and testing (optional)
+pytest>=7.0.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0

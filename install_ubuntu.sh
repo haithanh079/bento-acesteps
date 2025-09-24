@@ -128,6 +128,16 @@ install_system_deps() {
         libhdf5-dev \
         pkg-config
     
+    # Graphics and Cairo libraries (for matplotlib, pycairo, etc.)
+    apt install -y \
+        libcairo2-dev \
+        libgirepository1.0-dev \
+        libglib2.0-dev \
+        libgtk-3-dev \
+        libpango1.0-dev \
+        libgdk-pixbuf2.0-dev \
+        libffi-dev
+    
     log_success "System dependencies installed"
 }
 
@@ -274,7 +284,14 @@ setup_project_env() {
     log_info "Installing BentoML and dependencies..."
     
     local install_cmd="cd '$project_dir' && source venv/bin/activate && "
+    
+    # First, install/upgrade fsspec to meet BentoML requirements
+    install_cmd+="pip install --upgrade 'fsspec>=2025.7.0' && "
+    
+    # Install BentoML with specific version
     install_cmd+="pip install bentoml==1.4.25 && "
+    
+    # Install core web framework dependencies
     install_cmd+="pip install fastapi>=0.104.0 pydantic>=2.0.0 pydantic-settings>=2.0.0 uvicorn[standard]>=0.24.0 && "
     
     # Install PyTorch with CUDA support if available
@@ -286,10 +303,15 @@ setup_project_env() {
         install_cmd+="pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && "
     fi
     
-    # Install additional ML/Audio dependencies
-    install_cmd+="pip install transformers==4.50.0 diffusers>=0.33.0 librosa==0.11.0 soundfile==0.13.1 && "
-    install_cmd+="pip install datasets==3.4.1 accelerate==1.6.0 loguru==0.7.3 tqdm numpy matplotlib==3.10.1 && "
-    install_cmd+="pip install python-multipart>=0.0.6 aiofiles>=23.0.0 huggingface-hub>=0.19.0"
+    # Install ML/AI dependencies with compatible versions
+    install_cmd+="pip install 'transformers>=4.50.0' 'diffusers>=0.33.0' 'librosa>=0.11.0' 'soundfile>=0.13.1' && "
+    install_cmd+="pip install 'datasets>=3.4.1' 'accelerate>=1.6.0' 'loguru>=0.7.3' tqdm numpy 'matplotlib>=3.10.1' && "
+    
+    # Install additional dependencies for file handling and API
+    install_cmd+="pip install 'python-multipart>=0.0.6' 'aiofiles>=23.0.0' 'huggingface-hub>=0.19.0' && "
+    
+    # Resolve any remaining dependency conflicts
+    install_cmd+="pip check || (echo 'Resolving dependency conflicts...' && pip install --upgrade --force-reinstall bentoml==1.4.25)"
     
     if is_root && [[ "$actual_user" != "root" ]]; then
         su - "$actual_user" -c "$install_cmd"
@@ -530,8 +552,17 @@ main() {
     echo "2. Copy your ACE-Step model checkpoints to the project directory"
     echo "3. Update the .env file with your configuration"
     echo "4. Clone/copy your service files to the project directory"
-    echo "5. Build the BentoML service: bentoml build"
-    echo "6. Serve the service: bentoml serve"
+    echo "5. If you encounter dependency conflicts, run: python3 fix_dependencies.py"
+    echo "6. Build the BentoML service: bentoml build"
+    echo "7. Serve the service: bentoml serve"
+    echo
+    
+    log_info "Troubleshooting:"
+    echo "- For fsspec conflicts: pip install --upgrade 'fsspec>=2025.7.0'"
+    echo "- For dependency issues: python3 fix_dependencies.py"
+    echo "- For Cairo/pycairo issues: bash fix_cairo.sh"
+    echo "- For requirements file: pip install -r requirements-fixed.txt"
+    echo "- For build failures: apt install -y build-essential python3-dev libcairo2-dev"
     echo
     
     if [[ "$INSTALL_CUDA" == true ]]; then

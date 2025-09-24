@@ -38,6 +38,15 @@ gfortran
 libhdf5-dev
 pkg-config
 
+# Graphics and Cairo libraries (for matplotlib, pycairo, etc.)
+libcairo2-dev
+libgirepository1.0-dev
+libglib2.0-dev
+libgtk-3-dev
+libpango1.0-dev
+libgdk-pixbuf2.0-dev
+libffi-dev
+
 # Optional: For development and debugging
 htop
 tree
