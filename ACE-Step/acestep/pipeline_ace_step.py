@@ -10,6 +10,8 @@ import random
 import time
 import os
 import re
+import inspect
+from typing import Optional
 
 import torch
 from loguru import logger
@@ -28,9 +30,43 @@ from acestep.schedulers.scheduling_flow_match_heun_discrete import (
 from acestep.schedulers.scheduling_flow_match_pingpong import (
     FlowMatchPingPongScheduler,
 )
-from diffusers.pipelines.stable_diffusion_3.pipeline_stable_diffusion_3 import (
-    retrieve_timesteps,
-)
+# from diffusers.pipelines.stable_diffusion_3.pipeline_stable_diffusion_3 import (
+#     retrieve_timesteps,
+# )
+
+# Local implementation to avoid CLIP import issues
+def retrieve_timesteps(
+    scheduler,
+    num_inference_steps: int,
+    device: torch.device,
+    timesteps: Optional[torch.Tensor] = None,
+    **kwargs,
+) -> torch.Tensor:
+    """
+    Retrieve timesteps for the scheduler.
+    Local implementation to avoid importing from stable_diffusion_3 pipeline.
+    """
+    if timesteps is not None:
+        accepts_timesteps = "timesteps" in set(inspect.signature(scheduler.step).parameters.keys())
+        if not accepts_timesteps:
+            raise ValueError(
+                f"The current scheduler class {scheduler.__class__}'s `step` method does not support an"
+                f" arbitrary `timesteps`. Please set `timesteps` to `None` to use the default"
+                f" timestep scheduling strategy."
+            )
+        timesteps = timesteps.long().to(device)
+        return timesteps
+    
+    accepts_timesteps = "timesteps" in set(inspect.signature(scheduler.step).parameters.keys())
+    if not accepts_timesteps:
+        scheduler.set_timesteps(num_inference_steps, device=device, **kwargs)
+        timesteps = scheduler.timesteps
+    else:
+        scheduler.set_timesteps(num_inference_steps, device=device, **kwargs)
+        timesteps = scheduler.timesteps
+    
+    return timesteps
+
 from diffusers.utils.torch_utils import randn_tensor
 from diffusers.utils.peft_utils import set_weights_and_activate_adapters
 from transformers import UMT5EncoderModel, AutoTokenizer
