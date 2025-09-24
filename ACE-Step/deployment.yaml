@@ -1,0 +1,40 @@
+name: "ace-step-audio-service"
+bento: .
+description: "OpenAI-compatible ACE-Step audio generation service"
+
+# Global environment variables
+envs:
+  - name: "TOKENIZERS_PARALLELISM"
+    value: "false"
+  - name: "PYTHONUNBUFFERED"
+    value: "1"
+  - name: "HF_HUB_CACHE"
+    value: "/tmp/huggingface_cache"
+
+# Service configuration
+services:
+  ACEStepAudioService:
+    instance_type: "gpu.l4.1"  # Adjust based on your needs
+    scaling:
+      min_replicas: 1
+      max_replicas: 3
+    envs:
+      - name: "ACE_STEP_CHECKPOINT_PATH"
+        value: "/opt/checkpoints"  # Set your checkpoint path
+      - name: "CUDA_VISIBLE_DEVICES"
+        value: "0"
+      - name: "OUTPUT_DIR"
+        value: "/tmp/ace_step_outputs"
+    deployment_strategy: "RollingUpdate"
+    config_overrides:
+      traffic:
+        timeout: 300  # 5 minutes for audio generation
+        max_concurrency: 2
+        external_queue: true
+      resources:
+        cpu: "4"
+        memory: "8Gi"
+        gpu: 1
+      workers:
+        - gpu: 1
+          gpu_type: "nvidia-l4"
