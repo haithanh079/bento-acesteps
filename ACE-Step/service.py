@@ -23,6 +23,39 @@ import torch
 from acestep.pipeline_ace_step import ACEStepPipeline
 from config import config
 
+# Device detection and MPS fallback
+def get_optimal_device():
+    """Get the optimal device for inference"""
+    if torch.cuda.is_available():
+        return "cuda"
+    elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        # Test MPS with problematic operations
+        try:
+            # Test MPS with large output channels (known limitation)
+            test_tensor = torch.randn(1, 1, 1000, device='mps')
+            conv = torch.nn.Conv1d(1, 100000, 3, device='mps')
+            _ = conv(test_tensor)
+            return "mps"
+        except Exception as e:
+            print(f"MPS test failed: {e}, falling back to CPU")
+            return "cpu"
+    else:
+        return "cpu"
+
+# Set device globally
+DEVICE = get_optimal_device()
+print(f"Using device: {DEVICE}")
+
+# Override device in config if needed
+if DEVICE != "cuda":
+    config.device_id = 0  # Use CPU or MPS
+    print(f"Device overridden to: {DEVICE}")
+
+# Set environment variables for better compatibility
+import os
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 # OpenAI-compatible request/response models
 class AudioGenerationRequest(BaseModel):
@@ -228,19 +261,37 @@ class acestepaudoservice:
     def _initialize_pipeline(self):
         """Initialize the ACE-Step pipeline"""
         try:
+            # Use detected device
+            device_id = 0 if DEVICE in ["cpu", "mps"] else config.device_id
+            
             self.pipeline = ACEStepPipeline(
                 checkpoint_dir=config.checkpoint_path,
                 dtype=config.dtype,
                 torch_compile=config.torch_compile,
-                device_id=config.device_id,
+                device_id=device_id,
                 cpu_offload=config.cpu_offload,
                 overlapped_decode=config.overlapped_decode
             )
             self.model_loaded = True
-            print("ACE-Step pipeline initialized successfully")
+            print(f"ACE-Step pipeline initialized successfully on {DEVICE}")
         except Exception as e:
             print(f"Failed to initialize pipeline: {e}")
-            self.model_loaded = False
+            # Try with CPU fallback
+            try:
+                print("Attempting CPU fallback...")
+                self.pipeline = ACEStepPipeline(
+                    checkpoint_dir=config.checkpoint_path,
+                    dtype=config.dtype,
+                    torch_compile=False,  # Disable torch compile for CPU
+                    device_id=0,
+                    cpu_offload=True,
+                    overlapped_decode=False
+                )
+                self.model_loaded = True
+                print("ACE-Step pipeline initialized successfully on CPU (fallback)")
+            except Exception as e2:
+                print(f"CPU fallback also failed: {e2}")
+                self.model_loaded = False
     
     def _ensure_model_loaded(self):
         """Ensure the model is loaded"""
