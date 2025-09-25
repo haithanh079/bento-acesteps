@@ -28,7 +28,7 @@ python:
 docker:
   distro: debian
   python_version: "3.10"
-  cuda_version: "11.8"
+  cuda_version: "12.1"
   system_packages:
     - git
     - wget
@@ -36,9 +36,13 @@ docker:
     - ffmpeg
     - sox
     - libsndfile1
+    - python3-pip
+    - build-essential
+    - python3-dev
   env:
     - TOKENIZERS_PARALLELISM=false
     - CUDA_VISIBLE_DEVICES=0
     - PYTHONUNBUFFERED=1
     - HF_HUB_CACHE=/tmp/huggingface_cache
+    - HF_HUB_ENABLE_HF_TRANSFER=1
   setup_script: "./setup.sh"

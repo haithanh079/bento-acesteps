@@ -1,0 +1,65 @@
+# Custom Dockerfile for BentoML ACE-Step service
+FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04 AS base
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=3000 \
+    HF_HUB_ENABLE_HF_TRANSFER=1 \
+    TOKENIZERS_PARALLELISM=false \
+    CUDA_VISIBLE_DEVICES=0 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    build-essential \
+    git \
+    curl \
+    wget \
+    ffmpeg \
+    sox \
+    libsndfile1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3 /usr/bin/python
+
+# Create and activate virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create a non-root user
+RUN useradd -m -u 1001 appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy Bento files (will be populated by BentoML build)
+COPY . .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements-bentoml.txt
+
+# Create necessary directories
+RUN mkdir -p /tmp/ace_step_outputs /tmp/huggingface_cache && \
+    chown -R appuser:appuser /tmp/ace_step_outputs /tmp/huggingface_cache
+
+# Change ownership of app files to appuser
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose the port
+EXPOSE 3000
+
+# Set healthcheck
+HEALTHCHECK --interval=60s --timeout=10s --start-period=5s --retries=5 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# Default command (will be overridden by BentoML)
+CMD ["python", "-m", "bentoml", "serve", "service:acestepaudoservice", "--host", "0.0.0.0", "--port", "3000"]

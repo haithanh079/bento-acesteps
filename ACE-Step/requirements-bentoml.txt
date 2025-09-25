@@ -6,7 +6,7 @@ pydantic-settings>=2.0.0
 uvicorn[standard]>=0.24.0
 
 # Original ACE-Step dependencies
-datasets==3.4.1
+datasets>=3.0.0
 diffusers>=0.33.0
 gradio
 librosa==0.11.0
@@ -24,7 +24,7 @@ transformers==4.50.0
 py3langid==0.3.0
 hangul-romanize==0.1.0
 num2words==0.5.14
-spacy==3.8.4
+spacy==3.8.7
 accelerate==1.6.0
 cutlet
 fugashi[unidic-lite]
