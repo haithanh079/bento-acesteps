@@ -24,7 +24,7 @@ Requests==2.32.5
 setuptools==80.9.0
 soundfile==0.13.1
 spacy==3.8.7
-tokenizers==0.22.1
+tokenizers>=0.21.0
 torch==2.7.1+cu118
 torchaudio==2.7.1+cu118
 torchvision==0.22.1+cu118
