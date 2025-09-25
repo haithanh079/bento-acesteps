@@ -101,6 +101,37 @@ Generate audio from text prompt.
 }
 ```
 
+### Streaming Audio Generation (OpenAI Speech API Compatible)
+
+**POST** `/v1/audio/speech`
+Generate audio with streaming base64 output, compatible with OpenAI Speech API format.
+
+**Request Body:**
+```json
+{
+  "model": "ace-step-v1",
+  "input": "Generate a happy upbeat electronic music track",
+  "response_format": "mp3",
+  "duration": 10.0,
+  "guidance_scale": 15.0,
+  "num_inference_steps": 30,
+  "lyrics": "Optional lyrics text",
+  "seed": 42,
+  "scheduler": "euler",
+  "cfg_type": "apg",
+  "omega_scale": 10.0
+}
+```
+
+**Response:** Server-Sent Events (SSE) stream with base64-encoded audio chunks:
+```
+data: {"id": "audio_stream_abc123", "object": "audio.speech.chunk", "created": 1234567890, "model": "ace-step-v1", "data": {"audio": "base64_chunk_1"}}
+
+data: {"id": "audio_stream_abc123", "object": "audio.speech.chunk", "created": 1234567890, "model": "ace-step-v1", "data": {"audio": "base64_chunk_2"}}
+
+data: {"id": "audio_stream_abc123", "object": "audio.speech.chunk", "created": 1234567890, "model": "ace-step-v1", "data": {"audio": ""}}
+```
+
 ### File Operations
 
 **GET** `/v1/audio/files/{filename}`
@@ -215,6 +246,97 @@ client = OpenAI(
 ```bash
 bentoml build
 ```
+
+## Usage Examples
+
+### Streaming Audio Generation (OpenAI Compatible)
+
+```python
+import requests
+import json
+import base64
+
+# Streaming endpoint
+response = requests.post(
+    "http://localhost:3000/v1/audio/speech",
+    json={
+        "model": "ace-step-v1",
+        "input": "Generate a happy upbeat electronic music track",
+        "response_format": "mp3",
+        "duration": 10.0,
+        "guidance_scale": 15.0,
+        "num_inference_steps": 30
+    },
+    stream=True
+)
+
+# Process streaming response
+audio_chunks = []
+for line in response.iter_lines(decode_unicode=True):
+    if line.startswith("data: "):
+        data = json.loads(line[6:])
+        if "data" in data and "audio" in data["data"]:
+            audio_chunk = data["data"]["audio"]
+            if audio_chunk:
+                audio_chunks.append(audio_chunk)
+            else:
+                break  # End of stream
+
+# Combine chunks and save
+if audio_chunks:
+    combined_base64 = "".join(audio_chunks)
+    audio_data = base64.b64decode(combined_base64)
+    with open("generated_audio.mp3", "wb") as f:
+        f.write(audio_data)
+```
+
+### Regular Audio Generation
+
+```python
+import requests
+
+# Regular endpoint
+response = requests.post(
+    "http://localhost:3000/v1/audio/generations",
+    json={
+        "model": "ace-step-v1",
+        "prompt": "Generate a relaxing ambient soundscape",
+        "response_format": "wav",
+        "duration": 15.0,
+        "guidance_scale": 12.0,
+        "num_inference_steps": 40
+    }
+)
+
+result = response.json()
+print(f"Generated audio: {result['data'][0]['url']}")
+```
+
+### Using the Example Client
+
+```python
+from example_streaming_client import ACEStepStreamingClient
+
+# Initialize client
+client = ACEStepStreamingClient("http://localhost:3000")
+
+# Generate streaming audio
+audio_data = client.generate_speech_stream(
+    "Create an energetic rock song",
+    duration=8.0,
+    guidance_scale=18.0
+)
+
+# Save to file
+client.generate_speech_file(
+    "Generate ambient music",
+    "ambient.mp3",
+    duration=12.0,
+    num_inference_steps=50
+)
+```
+
+## Deployment
 
 ### Deploy to BentoCloud
 
