@@ -1,7 +1,7 @@
 # ================================
 # Stage 2: Runtime
 # ================================
-FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04 AS runtime
+FROM nvidia/cuda:12.8.0-runtime-ubuntu22.04 AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -29,7 +29,7 @@ COPY requirements.txt .
 # Install PyTorch with CUDA 12.6 support
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir hf_transfer peft && \
-    pip3 install --no-cache-dir torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu126 && \
+    pip3 install --no-cache-dir torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu128 && \
     pip3 install --no-cache-dir -r requirements.txt
 
 WORKDIR /app
