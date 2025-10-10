@@ -26,10 +26,10 @@ ENV PATH="/bentoml/venv/bin:$PATH"
 # Copy requirements.txt and install dependencies
 COPY requirements.txt .
 
-# Install specific PyTorch version compatible with CUDA 12.6
+# Install PyTorch with CUDA 12.6 support
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir hf_transfer peft && \
-    pip3 install --no-cache-dir torch==2.5.1+cu126 torchaudio==2.5.1+cu126 torchvision==0.20.1+cu126 --extra-index-url https://download.pytorch.org/whl/cu126 && \
+    pip3 install --no-cache-dir torch torchaudio torchvision --index-url https://download.pytorch.org/whl/cu126 && \
     pip3 install --no-cache-dir -r requirements.txt
 
 WORKDIR /app
