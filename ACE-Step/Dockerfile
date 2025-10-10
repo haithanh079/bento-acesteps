@@ -42,7 +42,6 @@ COPY acesteps_service.py /app/
 COPY requirements.txt /app/
 COPY config/ /app/config/
 COPY assets/ /app/assets/
-COPY examples/ /app/examples/
 
 
 EXPOSE 3000
