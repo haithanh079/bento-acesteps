@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip curl ffmpeg libsndfile1 espeak-ng espeak-ng-data libespeak-ng1 \
+    python3 python3-pip python3-venv curl ffmpeg libsndfile1 espeak-ng espeak-ng-data libespeak-ng1 \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && ln -s /usr/bin/python3 /usr/bin/python
 
@@ -18,6 +18,16 @@ RUN python3 -m pip install --upgrade pip bentoml
 
 RUN useradd -m -u 1001 bentoml && mkdir -p /bentoml && chown -R bentoml:bentoml /bentoml
 USER bentoml
+
+# Create and activate virtual environment
+RUN python -m venv /bentoml/venv
+ENV PATH="/bentoml/venv/bin:$PATH"
+
+# Install specific PyTorch version compatible with CUDA 12.6
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir hf_transfer peft && \
+    pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu126
+RUN pip3 install --no-cache-dir .
 
 WORKDIR /app
 COPY acesteps_service-latest.bento /app/acesteps_service-latest.bento
