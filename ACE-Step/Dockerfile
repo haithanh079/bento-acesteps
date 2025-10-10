@@ -53,13 +53,14 @@ RUN chown -R bentoml:bentoml /app
 # Switch to non-root user
 USER bentoml
 
-# Install Python dependencies with error handling
-RUN pip install --no-cache-dir -r requirements.txt || \
-    (pip install --no-cache-dir --ignore-installed mojimoji && \
-     pip install --no-cache-dir -r requirements.txt)
+# Install Python dependencies with proper error handling
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Build the BentoML service
-RUN bentoml build .
+# Build the BentoML service and get the tag
+RUN bentoml build . && \
+    BENTO_TAG=$(bentoml list | grep acesteps_service | head -1 | awk '{print $1}') && \
+    echo "Built BentoML service: $BENTO_TAG" && \
+    echo "$BENTO_TAG" > /app/bento_tag.txt
 
 # Stage 2: Runtime stage
 FROM nvidia/cuda:12.6.0-runtime-ubuntu22.04 AS runtime
@@ -101,6 +102,7 @@ WORKDIR /app
 
 # Copy the built BentoML service from builder stage
 COPY --from=builder --chown=bentoml:bentoml /bentoml /bentoml
+COPY --from=builder --chown=bentoml:bentoml /app/bento_tag.txt /app/bento_tag.txt
 
 # Switch to non-root user
 USER bentoml
@@ -110,7 +112,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:3000/healthz || exit 1
+    CMD curl -f http://localhost:3000/v1/healthz || exit 1
 
-# Run the BentoML service
-CMD ["bentoml", "serve", "acesteps_service:latest", "--host", "0.0.0.0", "--port", "3000"]
+# Run the BentoML service with dynamic tag
+CMD ["sh", "-c", "BENTO_TAG=$(cat /app/bento_tag.txt) && bentoml serve $BENTO_TAG --host 0.0.0.0 --port 3000"]
