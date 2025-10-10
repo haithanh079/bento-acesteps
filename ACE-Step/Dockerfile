@@ -23,6 +23,9 @@ USER bentoml
 RUN python -m venv /bentoml/venv
 ENV PATH="/bentoml/venv/bin:$PATH"
 
+# Copy requirements.txt and install dependencies
+COPY requirements.txt .
+
 # Install specific PyTorch version compatible with CUDA 12.6
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir hf_transfer peft && \
