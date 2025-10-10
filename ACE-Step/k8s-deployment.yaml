@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: acesteps-service
+        tfy_openapi_path: "/v1/openapi.json"
     spec:
       containers:
       - name: acesteps-service

@@ -32,8 +32,18 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu126
 
 WORKDIR /app
+# Copy and import bento bundle
 COPY acesteps_service-latest.bento /app/acesteps_service-latest.bento
 RUN bentoml import /app/acesteps_service-latest.bento
+
+# Copy source code first
+COPY acestep/ /app/acestep/
+COPY acesteps_service.py /app/
+COPY requirements.txt /app/
+COPY config/ /app/config/
+COPY assets/ /app/assets/
+COPY examples/ /app/examples/
+
 
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
