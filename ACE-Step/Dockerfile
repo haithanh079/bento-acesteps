@@ -30,7 +30,6 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir hf_transfer peft && \
     pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu126
-RUN pip3 install --no-cache-dir .
 
 WORKDIR /app
 COPY acesteps_service-latest.bento /app/acesteps_service-latest.bento
