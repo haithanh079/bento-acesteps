@@ -1,0 +1,47 @@
+{
+    "format": "wav",
+    "lora_name_or_path": "none",
+    "lora_weight": 1,
+    "task": "text2music",
+    "prompt": "funk, pop, soul, rock, melodic, guitar, drums, bass, keyboard, percussion, 105 BPM, energetic, upbeat, groovy, vibrant, dynamic",
+    "lyrics": "[verse]\nNeon lights they flicker bright\nCity hums in dead of night\nRhythms pulse through concrete veins\nLost in echoes of refrains\n\n[verse]\nBassline groovin' in my chest\nHeartbeats match the city's zest\nElectric whispers fill the air\nSynthesized dreams everywhere\n\n[chorus]\nTurn it up and let it flow\nFeel the fire let it grow\nIn this rhythm we belong\nHear the night sing out our song\n\n[verse]\nGuitar strings they start to weep\nWake the soul from silent sleep\nEvery note a story told\nIn this night we’re bold and gold\n\n[bridge]\nVoices blend in harmony\nLost in pure cacophony\nTimeless echoes timeless cries\nSoulful shouts beneath the skies\n\n[verse]\nKeyboard dances on the keys\nMelodies on evening breeze\nCatch the tune and hold it tight\nIn this moment we take flight\n",
+    "audio_duration": 153.11497739838057,
+    "infer_step": 60,
+    "guidance_scale": 15,
+    "scheduler_type": "euler",
+    "cfg_type": "apg",
+    "omega_scale": 10,
+    "guidance_interval": 0.5,
+    "guidance_interval_decay": 0,
+    "min_guidance_scale": 3,
+    "use_erg_tag": true,
+    "use_erg_lyric": false,
+    "use_erg_diffusion": true,
+    "oss_steps": [],
+    "timecosts": {
+        "preprocess": 0.5824539661407471,
+        "diffusion": 411.10234808921814,
+        "latent2audio": 40.801913022994995
+    },
+    "actual_seeds": [
+        2172837239
+    ],
+    "retake_seeds": [
+        3818041412
+    ],
+    "retake_variance": 0.5,
+    "guidance_scale_text": 0,
+    "guidance_scale_lyric": 0,
+    "repaint_start": 0,
+    "repaint_end": 0,
+    "edit_n_min": 0.0,
+    "edit_n_max": 1.0,
+    "edit_n_avg": 1,
+    "src_audio_path": null,
+    "edit_target_prompt": null,
+    "edit_target_lyrics": null,
+    "audio2audio_enable": false,
+    "ref_audio_strength": 0.5,
+    "ref_audio_input": null,
+    "audio_path": "./outputs/output_20251013160148_0.wav"
+}

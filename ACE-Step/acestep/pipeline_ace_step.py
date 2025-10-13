@@ -123,7 +123,10 @@ class ACEStepPipeline:
             if torch.cuda.is_available()
             else torch.device("cpu")
         )
-        if device.type == "cpu" and torch.backends.mps.is_available():
+        # Force CPU for MPS due to output channels > 65536 limitation
+        if device_id == -1 or (device.type == "cpu" and torch.backends.mps.is_available() and os.environ.get('PYTORCH_ENABLE_MPS_FALLBACK') == '1'):
+            device = torch.device("cpu")
+        elif device.type == "cpu" and torch.backends.mps.is_available():
             device = torch.device("mps")
         self.dtype = torch.bfloat16 if dtype == "bfloat16" else torch.float32
         if device.type == "mps" and self.dtype == torch.bfloat16:

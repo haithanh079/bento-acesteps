@@ -1,4 +1,5 @@
 import bentoml
+import os
 
 from fastapi import FastAPI, Request, HTTPException
 from acestep.pipeline_ace_step import ACEStepPipeline
@@ -14,7 +15,7 @@ app = FastAPI(
 # Pydantic models for request/response
 class SpeechRequest(BaseModel):
     model: str = "acesteps"
-    input: str
+    input: str = "[inst]"
     voice: str = "ash"
     response_format: str = "mp3"
     speed: float = 1.0
@@ -34,12 +35,30 @@ class ModelsResponse(BaseModel):
 @bentoml.service(name="acesteps_service")
 class ACEStepService(bentoml.Service):
 
-    def __init__(self, checkpoint_path: str = None, bf16: bool = False, torch_compile: bool = False, device_id: int = 0):
+    def __init__(self, checkpoint_path: str = None, bf16: bool = False, torch_compile: bool = False, device_id: int = 0, cpu_offload: bool = False, overlapped_decode: bool = False):
         super().__init__(name="acesteps_service")
         # Handle empty or None checkpoint_path - ACEStepPipeline will auto-download from HuggingFace
         if not checkpoint_path or checkpoint_path.strip() == "":
             checkpoint_path = None
-        self.model = ACEStepPipeline(checkpoint_dir=checkpoint_path, dtype="bfloat16" if bf16 else "float32", torch_compile=torch_compile, device_id=device_id)
+        
+        # Set CUDA device environment variable (like in gui.py)
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(device_id)
+        
+        # Force MPS fallback to CPU for BentoML to avoid "Output channels > 65536 not supported" error
+        # This matches the logic in pipeline_ace_step.py lines 126-135
+        import torch
+        if torch.backends.mps.is_available():
+            os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+            # Force device_id to -1 to trigger CPU fallback in ACEStepPipeline
+            device_id = -1
+        
+        self.model = ACEStepPipeline(
+            checkpoint_dir=checkpoint_path, 
+            dtype="bfloat16" if bf16 else "float32", 
+            torch_compile=torch_compile, 
+            device_id=device_id,
+            cpu_offload=cpu_offload,
+            overlapped_decode=overlapped_decode)
 
     # Health check endpoint
     @app.get("/healthz")
@@ -78,10 +97,10 @@ class ACEStepService(bentoml.Service):
         # Generate audio using the model with individual parameters
         result = self.model(
             format=request.response_format,
-            audio_duration=240,
+            audio_duration=60,
             prompt=request.instructions,
             lyrics=request.input,
-            infer_step=60,
+            infer_step=20,
             guidance_scale=15.0,
             scheduler_type="euler",
             cfg_type="apg",
