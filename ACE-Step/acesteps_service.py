@@ -34,7 +34,7 @@ class ModelsResponse(BaseModel):
 @bentoml.service(name="acesteps_service")
 class ACEStepService(bentoml.Service):
 
-    def __init__(self, checkpoint_path: str = None, bf16: bool = True, torch_compile: bool = True, device_id: int = 0):
+    def __init__(self, checkpoint_path: str = None, bf16: bool = False, torch_compile: bool = False, device_id: int = 0):
         super().__init__(name="acesteps_service")
         # Handle empty or None checkpoint_path - ACEStepPipeline will auto-download from HuggingFace
         if not checkpoint_path or checkpoint_path.strip() == "":
