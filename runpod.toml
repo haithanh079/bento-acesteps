@@ -1,0 +1,40 @@
+# RunPod Project Configuration for ACESTEPS Serverless Worker
+
+title = "ACESTEPS Serverless"
+
+[project]
+uuid = ""
+name = "acesteps-serverless"
+base_image = "runpod/pytorch:2.1.0-py3.10-cuda12.1.0-devel-ubuntu22.04"
+gpu_types = ["NVIDIA RTX 4090", "NVIDIA RTX 3090"]
+gpu_count = 1
+storage_id = ""
+volume_mount_path = "/runpod-volume"
+ports = "8000/http"
+container_disk_size_gb = 50
+
+[project.env_vars]
+# S3 Bucket Configuration (optional - for output uploads)
+BUCKET_ENDPOINT_URL = ""
+BUCKET_ACCESS_KEY_ID = ""
+BUCKET_SECRET_ACCESS_KEY = ""
+BUCKET_NAME = ""
+BUCKET_PREFIX = "acestep-outputs"
+
+# Model Configuration
+CHECKPOINT_PATH = ""
+BF16 = "true"
+TORCH_COMPILE = "false"
+CPU_OFFLOAD = "false"
+OVERLAPPED_DECODE = "false"
+DEVICE_ID = "0"
+
+[template]
+model_type = "default"
+model_name = "ACESTEPS"
+
+[runtime]
+python_version = "3.10"
+handler_path = "runpod_handler.py"
+requirements_path = "requirements.txt"
+

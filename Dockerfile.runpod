@@ -1,0 +1,59 @@
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 AS base
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HF_HUB_ENABLE_HF_TRANSFER=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    build-essential \
+    git \
+    curl \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3 /usr/bin/python
+
+# Create and activate virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create a non-root user to run the application
+RUN useradd -m -u 1001 appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir hf_transfer peft && \
+    pip3 install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu121
+
+# Copy application code
+COPY . .
+
+# Install ACESTEPS package
+RUN pip3 install --no-cache-dir -e .
+
+# Create output directories
+RUN mkdir -p /app/outputs /app/checkpoints /app/logs /tmp && \
+    chown -R appuser:appuser /app /tmp
+
+# Switch to non-root user
+USER appuser
+
+# Expose port (if needed for health checks)
+EXPOSE 8000
+
+# Set the handler as the entrypoint
+CMD ["python", "runpod_handler.py"]
+
